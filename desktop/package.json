@@ -1,0 +1,96 @@
+{
+  "name": "tasklink-desktop",
+  "version": "2.7.1",
+  "private": true,
+  "type": "module",
+  "description": "TaskLink task, calendar, and collaboration desktop application",
+  "author": "TaskLink",
+  "main": "dist-electron/main.cjs",
+  "scripts": {
+    "build:assets": "node scripts/make-icon.mjs",
+    "build:electron": "node scripts/build-electron.mjs",
+    "dev": "npm run build:assets && npm run build:electron && concurrently -k \"vite --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && cross-env TASKLINK_DEV_URL=http://127.0.0.1:5173 electron .\"",
+    "dev:web": "vite --host 127.0.0.1",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.electron.json --noEmit",
+    "build": "npm run typecheck && npm run build:assets && vite build && npm run build:electron",
+    "start": "electron .",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "package": "npm run build && electron-builder --config electron-builder.config.cjs --win nsis",
+    "package:dir": "npm run build && electron-builder --config electron-builder.config.cjs --dir",
+    "contracts": "openapi-typescript ../contracts/openapi.json -o shared/openapi.d.ts",
+    "format:check": "prettier --check electron shared/contract.ts shared/chat.ts shared/focus.ts shared/themes.ts src tests e2e scripts *.json *.ts *.cjs index.html"
+  },
+  "dependencies": {
+    "@fontsource-variable/noto-sans-sc": "5.3.0",
+    "@tanstack/react-query": "^5.90.0",
+    "electron-updater": "^6.8.0",
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^4.0.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0",
+    "@resvg/resvg-js": "2.6.2",
+    "@tailwindcss/vite": "^4.1.0",
+    "@testing-library/jest-dom": "^6.9.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^5.1.0",
+    "concurrently": "^9.0.1",
+    "cross-env": "^10.0.0",
+    "electron": "44.0.0",
+    "electron-builder": "26.15.3",
+    "esbuild": "0.28.1",
+    "jsdom": "^27.0.0",
+    "openapi-typescript": "^7.10.0",
+    "prettier": "3.9.6",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.9.0",
+    "vite": "8.2.2",
+    "vitest": "4.1.11",
+    "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.tasklink.desktop",
+    "productName": "TaskLink",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**",
+      "dist-electron/**"
+    ],
+    "asar": true,
+    "electronDist": "node_modules/electron/dist",
+    "win": {
+      "icon": "public/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "electronFuses": {
+      "runAsNode": false,
+      "enableNodeOptionsEnvironmentVariable": false,
+      "enableNodeCliInspectArguments": false,
+      "enableEmbeddedAsarIntegrityValidation": true,
+      "onlyLoadAppFromAsar": true,
+      "grantFileProtocolExtraPrivileges": false
+    }
+  }
+}
